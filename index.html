@@ -2,22 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>OS Practicals</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Practicals Downloads</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f6f9;
+        }
+        h2 {
+            color: #333;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+            max-width: 400px;
+        }
+        .file-item {
+            background: #ffffff;
+            margin: 8px 0;
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-item a {
+            text-decoration: none;
+            color: #0066cc;
+            font-weight: bold;
+        }
+        .file-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body style="font-size:8px;">
+<body>
 
-<p>
-    <!-- Individual file downloads -->
-    <a href="./addressbook.sh.txt" download="addressbook.sh.txt">p1 addressbook.sh</a><br>
-    <a href="./process.txt" download="process.txt">p2 process</a><br>
-    <a href="./producer.txt" download="producer.txt">p3 producer</a><br>
-    <a href="./dining.txt" download="dining.txt">p4 dining</a><br>
-    <a href="./banker.txt" download="banker.txt">p5 banker</a><br>
-    <a href="./fifo.txt" download="fifo.txt">p6 fifo</a><br>
-    <a href="./pipe.txt" download="pipe.txt">p7 pipe</a><br>
-    <a href="./disk.txt" download="disk.txt">p8 disk</a><br>
-</p>
+    <h2>OS Practical Files</h2>
+
+    <ul class="file-list">
+        <li class="file-item">
+            <span>p1 addressbook.sh</span>
+            <a href="./addressbook.sh.txt" download="addressbook.sh.txt">Download</a>
+        </li>
+        <li class="file-item">
+            <span>p2 process</span>
+            <a href="./process.txt" download="process.txt">Download</a>
+        </li>
+        <li class="file-item">
+            <span>p3 producer</span>
+            <a href="./producer.txt" download="producer.txt">Download</a>
+        </li>
+        <li class="file-item">
+            <span>p4 dining</span>
+            <a href="./dining.txt" download="dining.txt">Download</a>
+        </li>
+        <li class="file-item">
+            <span>p5 banker</span>
+            <a href="./banker.txt" download="banker.txt">Download</a>
+        </li>
+        <li class="file-item">
+            <span>p6 fifo</span>
+            <a href="./fifo.txt" download="fifo.txt">Download</a>
+        </li>
+        <li class="file-item">
+            <span>p7 pipe</span>
+            <a href="./pipe.txt" download="pipe.txt">Download</a>
+        </li>
+        <li class="file-item">
+            <span>p8 disk</span>
+            <a href="./disk.txt" download="disk.txt">Download</a>
+        </li>
+    </ul>
 
 </body>
 </html>
-

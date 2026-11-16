@@ -1,0 +1,155 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <ctype.h>
+#include <errno.h>
+
+#define FIFO1 "pipe1"
+#define FIFO2 "pipe2"
+
+int main(int argc, char *argv[])
+{
+    char buffer[1024], result[200];
+    int fd1, fd2;
+
+    // Create two named pipes
+    if (mkfifo(FIFO1, 0666) == -1 && errno != EEXIST)
+    {
+        perror("mkfifo");
+        return 1;
+    }
+
+    if (mkfifo(FIFO2, 0666) == -1 && errno != EEXIST)
+    {
+        perror("mkfifo");
+        return 1;
+    }
+
+    // PROCESS 1: SENDER AND RECEIVER
+    if (argc > 1 && strcmp(argv[1], "sender") == 0)
+    {
+        fd1 = open(FIFO1, O_WRONLY);
+        fd2 = -1;
+
+        while (1)
+        {
+            printf("\nEnter a sentence (exit to stop): ");
+            fflush(stdout);
+
+            if (fgets(buffer, sizeof(buffer), stdin) == NULL)
+                break;
+
+            write(fd1, buffer, strlen(buffer));
+
+            if (strcmp(buffer, "exit\n") == 0)
+                break;
+
+            if (fd2 == -1)
+                fd2 = open(FIFO2, O_RDONLY);
+
+            read(fd2, result, sizeof(result) - 1);
+            result[sizeof(result) - 1] = '\0';
+
+            printf("\nResult received:\n%s\n", result);
+        }
+
+        close(fd1);
+
+        if (fd2 != -1)
+            close(fd2);
+    }
+
+    // PROCESS 2: RECEIVER AND PROCESSOR
+    else if (argc > 1 && strcmp(argv[1], "receiver") == 0)
+    {
+        fd1 = open(FIFO1, O_RDONLY);
+        fd2 = open(FIFO2, O_WRONLY);
+
+        while (1)
+        {
+            int n = read(fd1, buffer, sizeof(buffer) - 1);
+
+            if (n <= 0)
+                break;
+
+            buffer[n] = '\0';
+
+            if (strcmp(buffer, "exit\n") == 0)
+                break;
+
+            int characters = n;
+            int words = 0, lines = 0, inword = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                if (buffer[i] == '\n')
+                    lines++;
+
+                if (!isspace((unsigned char)buffer[i]))
+                {
+                    if (!inword)
+                        words++;
+
+                    inword = 1;
+                }
+                else
+                    inword = 0;
+            }
+
+            if (n > 0 && buffer[n - 1] != '\n')
+                lines++;
+
+            // Write results to text file
+            FILE *fp = fopen("output.txt", "w");
+
+            if (fp == NULL)
+            {
+                perror("fopen");
+                break;
+            }
+
+            fprintf(fp, "Characters: %d\n", characters);
+            fprintf(fp, "Words: %d\n", words);
+            fprintf(fp, "Lines: %d\n", lines);
+
+            fclose(fp);
+
+            // Read result from file
+            fp = fopen("output.txt", "r");
+
+            if (fp == NULL)
+            {
+                perror("fopen");
+                break;
+            }
+
+            fread(result, 1, sizeof(result) - 1, fp);
+            fclose(fp);
+
+            result[sizeof(result) - 1] = '\0';
+
+            // Send result through second FIFO
+            write(fd2, result, strlen(result));
+        }
+
+        close(fd1);
+        close(fd2);
+    }
+    else
+    {
+        printf("Usage: ./fifo sender OR ./fifo receiver\n");
+    }
+
+    unlink(FIFO1);
+    unlink(FIFO2);
+
+    return 0;
+}
+
+gcc fifo.c -o fifo
+
+terminal 1 = ./fifo sender
+terminal 2 = ./fifo receiver , cat output.txt 

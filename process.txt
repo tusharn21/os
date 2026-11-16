@@ -1,0 +1,183 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+void bubbleSort(int arr[], int n)
+{
+    int i, j, temp;
+
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = 0; j < n - i - 1; j++)
+        {
+            if (arr[j] > arr[j + 1])
+            {
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void display(int arr[], int n)
+{
+    int i;
+
+    for (i = 0; i < n; i++)
+    {
+        printf("%d ", arr[i]);
+    }
+
+    printf("\n");
+}
+
+int main()
+{
+    int arr[100], n, i;
+    pid_t pid;
+
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > 100)
+    {
+        printf("Invalid number of elements.\n");
+        return 1;
+    }
+
+    printf("Enter %d integers:\n", n);
+
+    for (i = 0; i < n; i++)
+    {
+        scanf("%d", &arr[i]);
+    }
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        printf("Fork failed.\n");
+        return 1;
+    }
+
+    else if (pid == 0)
+    {
+        printf("\nChild Process\n");
+        printf("Child PID: %d\n", getpid());
+
+        bubbleSort(arr, n);
+
+        printf("Sorted array by Child: ");
+        display(arr, n);
+
+        exit(0);
+    }
+
+    else
+    {
+        printf("\nParent Process\n");
+        printf("Parent PID: %d\n", getpid());
+
+        bubbleSort(arr, n);
+
+        printf("Sorted array by Parent: ");
+        display(arr, n);
+
+        wait(NULL);
+
+        printf("Child process completed.\n");
+    }
+
+    return 0;
+}
+
+gcc process.c -o process
+./process
+
+nano zombie.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid == 0)
+    {
+        printf("Child process is exiting.\n");
+        exit(0);
+    }
+    else if (pid > 0)
+    {
+        printf("Parent PID: %d\n", getpid());
+        printf("Child PID: %d\n", pid);
+
+        printf("Parent sleeping for 20 seconds.\n");
+        fflush(stdout);
+
+        sleep(20);
+
+        wait(NULL);
+
+        printf("Parent collected child status.\n");
+    }
+
+    return 0;
+}
+
+gcc zombie.c -o zombie
+./zombie 
+
+ps -o pid,ppid,state,cmd -p ___
+(20 sec , in new terminal )
+
+nano orphan.c
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+int main()
+{
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid == 0)
+    {
+        printf("Child Process Started\n");
+        printf("Child PID: %d\n", getpid());
+        printf("Original Parent PID: %d\n", getppid());
+
+        sleep(5);
+
+        printf("Parent has exited.\n");
+        printf("New Parent PID: %d\n", getppid());
+    }
+    else if (pid > 0)
+    {
+        printf("Parent Process Started\n");
+        printf("Parent PID: %d\n", getpid());
+
+        sleep(1);
+
+        printf("Parent is exiting.\n");
+        exit(0);
+    }
+
+    return 0;
+}
+
+gcc orphan.c -o orphan
+./orphan
+

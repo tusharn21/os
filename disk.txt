@@ -1,0 +1,141 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int n, head, size;
+    int req[100], a[100], visited[100] = {0};
+    int i, j, pos, current, total;
+    int movement;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    printf("Enter request queue:\n");
+    for (i = 0; i < n; i++)
+        scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size (maximum cylinder number): ");
+    scanf("%d", &size);
+
+    /* Copy and sort requests */
+    for (i = 0; i < n; i++)
+        a[i] = req[i];
+
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = 0; j < n - i - 1; j++)
+        {
+            if (a[j] > a[j + 1])
+            {
+                int temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+            }
+        }
+    }
+
+    /* SSTF */
+    current = head;
+    total = 0;
+
+    printf("\nSSTF Sequence: %d", current);
+
+    for (i = 0; i < n; i++)
+    {
+        int min = 999999;
+        pos = -1;
+
+        for (j = 0; j < n; j++)
+        {
+            if (!visited[j])
+            {
+                movement = abs(current - req[j]);
+
+                if (movement < min)
+                {
+                    min = movement;
+                    pos = j;
+                }
+            }
+        }
+
+        visited[pos] = 1;
+        total += abs(current - req[pos]);
+        current = req[pos];
+
+        printf(" -> %d", current);
+    }
+
+    printf("\nTotal SSTF Movement = %d\n", total);
+
+    /* SCAN - direction is towards higher cylinders */
+    current = head;
+    total = 0;
+
+    printf("\nSCAN Sequence: %d", current);
+
+    for (i = 0; i < n; i++)
+    {
+        if (a[i] >= head)
+        {
+            total += abs(current - a[i]);
+            current = a[i];
+            printf(" -> %d", current);
+        }
+    }
+
+    total += abs(current - size);
+    current = size;
+    printf(" -> %d", current);
+
+    for (i = n - 1; i >= 0; i--)
+    {
+        if (a[i] < head)
+        {
+            total += abs(current - a[i]);
+            current = a[i];
+            printf(" -> %d", current);
+        }
+    }
+
+    printf("\nTotal SCAN Movement = %d\n", total);
+
+    /* C-LOOK - direction is towards higher cylinders */
+    current = head;
+    total = 0;
+
+    printf("\nC-LOOK Sequence: %d", current);
+
+    for (i = 0; i < n; i++)
+    {
+        if (a[i] >= head)
+        {
+            total += abs(current - a[i]);
+            current = a[i];
+            printf(" -> %d", current);
+        }
+    }
+
+    /* Jump to lowest request */
+    for (i = 0; i < n; i++)
+    {
+        if (a[i] < head)
+        {
+            total += abs(current - a[i]);
+            current = a[i];
+            printf(" -> %d", current);
+        }
+    }
+
+    printf("\nTotal C-LOOK Movement = %d\n", total);
+
+    return 0;
+}
+nano disk.c 
+gcc disk.c -o disk
+./disk

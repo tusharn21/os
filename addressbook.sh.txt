@@ -1,0 +1,106 @@
+addressbook.sh
+chmod +x addressbook.sh
+./addressbook.sh
+
+#!/bin/bash
+
+FILE="addressbook.txt"
+
+while true
+do
+    echo "========== ADDRESS BOOK =========="
+    echo "1. Create Address Book"
+    echo "2. View Address Book"
+    echo "3. Insert Record"
+    echo "4. Delete Record"
+    echo "5. Modify Record"
+    echo "6. Exit"
+    echo "Enter your choice:"
+
+    read choice
+
+    case $choice in
+
+    1)
+        touch "$FILE"
+        echo "Address Book Created Successfully."
+        ;;
+
+    2)
+        if [ -f "$FILE" ]; then
+            echo "Name | Phone Number | Email"
+            cat "$FILE"
+        else
+            echo "Address Book does not exist."
+        fi
+        ;;
+
+    3)
+        echo "Enter Name:"
+        read name
+
+        echo "Enter Phone Number:"
+        read phone
+
+        echo "Enter Email:"
+        read email
+
+        echo "$name | $phone | $email" >> "$FILE"
+
+        echo "Record Inserted Successfully."
+        ;;
+
+    4)
+        echo "Enter Name to Delete:"
+        read name
+
+        if [ -f "$FILE" ]; then
+            grep -Fiv "$name" "$FILE" > temp.txt
+            mv temp.txt "$FILE"
+            echo "Record Deleted Successfully."
+        else
+            echo "Address Book does not exist."
+        fi
+        ;;
+
+    5)
+        echo "Enter Name to Modify:"
+        read name
+
+        if grep -Fqi "$name" "$FILE" 2>/dev/null; then
+            grep -Fiv "$name" "$FILE" > temp.txt
+
+            echo "Enter New Name:"
+            read newname
+
+            echo "Enter New Phone Number:"
+            read newphone
+
+            echo "Enter New Email:"
+            read newemail
+
+            echo "$newname | $newphone | $newemail" >> temp.txt
+            mv temp.txt "$FILE"
+
+            echo "Record Modified Successfully."
+        else
+            echo "Record Not Found."
+        fi
+        ;;
+
+    6)
+        echo "Exiting Address Book."
+        exit 0
+        ;;
+
+    *)
+        echo "Invalid Choice. Please Try Again."
+        ;;
+
+    esac
+
+    echo ""
+done
+
+chmod +x addressbook.sh
+./addressbook.sh
